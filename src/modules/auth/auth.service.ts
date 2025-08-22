@@ -70,4 +70,23 @@ export class AuthService {
       refreshToken,
     };
   }
+
+  async refreshTokens(refreshToken: string) {
+    try {
+      const payload = await this.jwtService.verifyAsync(refreshToken, {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+      });
+
+      // Verify user still exists
+      const user = await this.userService.findByEmail(payload.email);
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      return this.getTokens(user.id, user.email);
+    } catch (error) {
+      console.error(error);
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+  }
 }
