@@ -11,6 +11,7 @@ import {
   ApiOkResponse,
   ApiUnauthorizedResponse,
   ApiForbiddenResponse,
+  ApiNotFoundResponse,
   ApiCookieAuth,
 } from '@nestjs/swagger';
 
@@ -51,6 +52,17 @@ export class UserController {
         statusCode: { type: 'number', example: 403 },
         message: { type: 'string', example: 'Forbidden resource' },
         error: { type: 'string', example: 'Forbidden' },
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found in database',
+    schema: {
+      type: 'object',
+      properties: {
+        statusCode: { type: 'number', example: 404 },
+        message: { type: 'string', example: 'User with ID 123 not found' },
+        error: { type: 'string', example: 'Not Found' },
       },
     },
   })
