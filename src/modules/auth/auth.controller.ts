@@ -29,7 +29,7 @@ import {
   ApiConflictResponse,
   ApiCookieAuth,
 } from '@nestjs/swagger';
-import { AuthGuard } from 'src/guards/jwt-auth.guard';
+import { AuthGuard } from 'src/common/guards/jwt-auth.guard';
 
 @ApiTags('authentication')
 @Controller('auth')

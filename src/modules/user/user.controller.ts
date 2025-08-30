@@ -1,11 +1,11 @@
 import { Controller, Get } from '@nestjs/common';
-import { AuthGuard } from 'src/guards/jwt-auth.guard';
+import { AuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { UserService } from './user.service';
-import { CurrentUser } from 'src/decorators/current-user.decorator';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from 'src/types/auth.types';
-import { Serialize } from '../../interceptors/serialize.interceptor';
+import { Serialize } from '../../common/interceptors/serialize.interceptor';
 import { SerializedUserDto } from './dto/serialized-user.dto';
-import { ResponseDtoFor } from './dto/generic-response.dto';
+import { ResponseDtoFor } from '../../common/dtos/generic-response.dto';
 import {
   ApiTags,
   ApiOperation,
