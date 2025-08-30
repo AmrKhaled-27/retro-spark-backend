@@ -1,16 +1,18 @@
 import { Controller, Get } from '@nestjs/common';
-import { AuthGuard } from 'src/guards/jwt-auth.guard';
+import { AuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { UserService } from './user.service';
-import { CurrentUser } from 'src/decorators/current-user.decorator';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { AuthenticatedUser } from 'src/types/auth.types';
-import { Serialize } from '../../interceptors/serialize.interceptor';
+import { Serialize } from '../../common/interceptors/serialize.interceptor';
 import { SerializedUserDto } from './dto/serialized-user.dto';
+import { ResponseDtoFor } from '../../common/dtos/generic-response.dto';
 import {
   ApiTags,
   ApiOperation,
   ApiOkResponse,
   ApiUnauthorizedResponse,
   ApiForbiddenResponse,
+  ApiNotFoundResponse,
   ApiCookieAuth,
 } from '@nestjs/swagger';
 
@@ -29,30 +31,29 @@ export class UserController {
   })
   @ApiCookieAuth('access_token')
   @ApiOkResponse({
-    type: SerializedUserDto,
+    type: ResponseDtoFor({
+      fields: ['data'],
+      dataDto: SerializedUserDto,
+    }),
     description: 'User profile retrieved successfully',
   })
   @ApiUnauthorizedResponse({
+    type: ResponseDtoFor({
+      fields: ['errors'],
+    }),
     description: 'Access token is missing, invalid, or expired',
-    schema: {
-      type: 'object',
-      properties: {
-        statusCode: { type: 'number', example: 401 },
-        message: { type: 'string', example: 'Access token not found' },
-        error: { type: 'string', example: 'Unauthorized' },
-      },
-    },
   })
   @ApiForbiddenResponse({
+    type: ResponseDtoFor({
+      fields: ['errors'],
+    }),
     description: 'User does not have permission to access this resource',
-    schema: {
-      type: 'object',
-      properties: {
-        statusCode: { type: 'number', example: 403 },
-        message: { type: 'string', example: 'Forbidden resource' },
-        error: { type: 'string', example: 'Forbidden' },
-      },
-    },
+  })
+  @ApiNotFoundResponse({
+    type: ResponseDtoFor({
+      fields: ['errors'],
+    }),
+    description: 'User not found in database',
   })
   getMe(@CurrentUser() user: AuthenticatedUser) {
     return this.userService.findById(user.id);
