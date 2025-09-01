@@ -8,8 +8,35 @@ datasource db {
 }
 
 model User {
-  id        Int    @id @default(autoincrement())
-  email     String @unique
+  id        Int          @id @default(autoincrement())
+  email     String       @unique
   name      String
   password  String
+  teams     Team[]       @relation("OwnedTeams")
+  members   TeamMember[]
+}
+
+model Team {
+  id          Int          @id @default(autoincrement())
+  title       String
+  description String?
+  owner       User         @relation("OwnedTeams", fields: [ownerId], references: [id])
+  ownerId     Int
+  members     TeamMember[]
+}
+
+model TeamMember {
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+  team   Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId Int
+  role   Role
+
+  @@id([userId, teamId])
+}
+
+enum Role {
+  ADMIN
+  FACILITATOR
+  PARTICIPANT
 }
