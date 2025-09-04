@@ -27,7 +27,7 @@ export class TeamService {
     return team;
   }
 
-  async findAllForUser(userId: number): Promise<{ teams: Team[] }> {
+  async findAllForUser(userId: number): Promise<Team[]> {
     const teams = await this.prisma.team.findMany({
       where: {
         OR: [
@@ -46,7 +46,7 @@ export class TeamService {
         ],
       },
     });
-    return { teams };
+    return teams;
   }
 
   async findTeamByIdForUser(teamId: number, userId: number): Promise<Team | null> {
