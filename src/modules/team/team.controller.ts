@@ -34,11 +34,8 @@ import { AddTeamMemberDto } from './dto/add-team-member.dto';
 import { UpdateTeamMemberDto } from './dto/update-team-member.dto';
 import { Serialize } from '../../common/interceptors/serialize.interceptor';
 import { ResponseDtoFor } from '../../common/dtos/generic-response.dto';
-import { SerializedTeamDto, SerializedTeamsDto } from './dto/serialized-team.dto';
-import {
-  SerializedTeamMemberDto,
-  SerializedTeamMembersDto,
-} from './dto/serialized-team-member.dto';
+import { SerializedTeamDto } from './dto/serialized-team.dto';
+import { SerializedTeamMemberDto } from './dto/serialized-team-member.dto';
 
 @ApiTags('Teams')
 @Controller('teams')
@@ -71,7 +68,7 @@ export class TeamController {
   @ApiOkResponse({
     type: ResponseDtoFor({
       fields: ['data'],
-      dataDto: SerializedTeamsDto,
+      dataDto: [SerializedTeamDto],
     }),
     description: 'List of teams.',
   })
@@ -83,7 +80,7 @@ export class TeamController {
   })
   @ApiCookieAuth('access_token')
   @UseGuards(JwtAuthGuard)
-  @Serialize(SerializedTeamsDto)
+  @Serialize(SerializedTeamDto)
   @Get()
   findAllForUser(@CurrentUser() user: AuthenticatedUser) {
     return this.teamService.findAllForUser(user.id);
@@ -278,7 +275,7 @@ export class TeamController {
   @ApiOkResponse({
     type: ResponseDtoFor({
       fields: ['data'],
-      dataDto: SerializedTeamMembersDto,
+      dataDto: [SerializedTeamMemberDto],
     }),
     description: 'List of team members.',
   })
@@ -297,7 +294,7 @@ export class TeamController {
   @ApiCookieAuth('access_token')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(AccessRoles.ADMIN, AccessRoles.FACILITATOR, AccessRoles.PARTICIPANT)
-  @Serialize(SerializedTeamMembersDto)
+  @Serialize(SerializedTeamMemberDto)
   @Get(':id/members')
   getMembers(@Param('id') id: string) {
     return this.teamService.getMembers(+id);
