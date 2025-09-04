@@ -1,0 +1,6 @@
+export enum AccessRoles {
+  ADMIN = 'ADMIN',
+  FACILITATOR = 'FACILITATOR',
+  PARTICIPANT = 'PARTICIPANT',
+  OWNER = 'OWNER',
+}
