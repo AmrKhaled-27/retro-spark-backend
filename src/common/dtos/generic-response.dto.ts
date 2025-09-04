@@ -27,7 +27,7 @@ export class ResponseDto<T, M = Record<string, any>> {
 
 export interface ResponseDtoForOptions<T, M> {
   fields: (keyof ResponseDto<T, M>)[];
-  dataDto?: Type<T>;
+  dataDto?: Type<T> | Type<any>[];
   metaDto?: Type<M>;
   messageExample?: string;
 }
@@ -35,11 +35,16 @@ export interface ResponseDtoForOptions<T, M> {
 export function ResponseDtoFor<T = any, M = any>(options: ResponseDtoForOptions<T, M>): any {
   const { fields, dataDto, metaDto, messageExample } = options;
 
+  // Handle array types
+  const isDataArray = Array.isArray(dataDto);
+  const actualDataDto = isDataArray ? dataDto[0] : dataDto;
+
   // Create a unique class name for Swagger
-  const dataModelName = dataDto?.name || 'GenericData';
+  const dataModelName = actualDataDto?.name || 'GenericData';
   const metaModelName = metaDto?.name || 'GenericMeta';
   const fieldsStr = fields.sort().join('');
-  const className = `ResponseFor${fieldsStr}${dataModelName}${metaModelName}`;
+  const arrayStr = isDataArray ? 'Array' : '';
+  const className = `ResponseFor${fieldsStr}${arrayStr}${dataModelName}${metaModelName}`;
 
   // Cache created classes to avoid re-creating them
   if ((global as any)[className]) {
@@ -47,17 +52,25 @@ export function ResponseDtoFor<T = any, M = any>(options: ResponseDtoForOptions<
   }
 
   const extraModels = [];
-  if (dataDto) extraModels.push(dataDto);
+  if (actualDataDto) extraModels.push(actualDataDto);
   if (metaDto) extraModels.push(metaDto);
 
   @ApiExtraModels(...extraModels)
   class DynamicResponseDto extends PickType(ResponseDto<T, M>, fields as any) {}
 
   if (fields.includes('data') && dataDto) {
-    ApiProperty({
-      description: 'Response data',
-      type: dataDto,
-    })(DynamicResponseDto.prototype, 'data');
+    if (isDataArray) {
+      ApiProperty({
+        description: 'Response data',
+        type: actualDataDto,
+        isArray: true,
+      })(DynamicResponseDto.prototype, 'data');
+    } else {
+      ApiProperty({
+        description: 'Response data',
+        type: dataDto,
+      })(DynamicResponseDto.prototype, 'data');
+    }
   }
 
   if (fields.includes('meta') && metaDto) {

@@ -17,9 +17,3 @@ export class SerializedTeamMemberDto {
   @Expose()
   role: Role;
 }
-
-export class SerializedTeamMembersDto {
-  @ApiProperty({ description: 'List of team members', type: [SerializedTeamMemberDto] })
-  @Expose()
-  members: SerializedTeamMemberDto[];
-}
