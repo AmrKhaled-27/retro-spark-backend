@@ -27,7 +27,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../../types/auth.types';
 import { Roles } from '../../common/decorators/roles.decorator';
-import { AccessRoles } from 'src/types/role.enum';
+import { Role } from '@prisma/client';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { UpdateTeamDto } from './dto/update-team.dto';
 import { AddTeamMemberDto } from './dto/add-team-member.dto';
@@ -136,7 +136,7 @@ export class TeamController {
   })
   @ApiCookieAuth('access_token')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(AccessRoles.ADMIN)
+  @Roles(Role.ADMIN)
   @Serialize(SerializedTeamDto)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateTeamDto: UpdateTeamDto) {
@@ -159,7 +159,7 @@ export class TeamController {
   })
   @ApiCookieAuth('access_token')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(AccessRoles.OWNER)
+  @Roles(Role.OWNER)
   @Delete(':id')
   @HttpCode(204)
   remove(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
@@ -194,7 +194,7 @@ export class TeamController {
   })
   @ApiCookieAuth('access_token')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(AccessRoles.ADMIN)
+  @Roles(Role.ADMIN)
   @Serialize(SerializedTeamMemberDto)
   @Post(':id/members')
   addMember(@Param('id') id: string, @Body() addTeamMemberDto: AddTeamMemberDto) {
@@ -229,7 +229,7 @@ export class TeamController {
   })
   @ApiCookieAuth('access_token')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(AccessRoles.ADMIN)
+  @Roles(Role.ADMIN)
   @Serialize(SerializedTeamMemberDto)
   @Patch(':id/members/:userId')
   updateMemberRole(
@@ -264,7 +264,7 @@ export class TeamController {
   })
   @ApiCookieAuth('access_token')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(AccessRoles.ADMIN)
+  @Roles(Role.ADMIN)
   @Delete(':id/members/:userId')
   @HttpCode(204)
   removeMember(@Param('id') id: string, @Param('userId') userId: string) {
@@ -293,7 +293,7 @@ export class TeamController {
   })
   @ApiCookieAuth('access_token')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(AccessRoles.ADMIN, AccessRoles.FACILITATOR, AccessRoles.PARTICIPANT)
+  @Roles(Role.ADMIN, Role.FACILITATOR, Role.PARTICIPANT)
   @Serialize(SerializedTeamMemberDto)
   @Get(':id/members')
   getMembers(@Param('id') id: string) {

@@ -1,6 +1,7 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { TeamService } from '../../modules/team/team.service';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -23,18 +24,13 @@ export class RolesGuard implements CanActivate {
       return false;
     }
 
-    const team = await this.teamService.findTeamById(teamId);
-    if (!team) {
-      return false;
-    }
-
-    if (team.ownerId === user.id) {
-      return true; // Owner has all permissions
-    }
-
     const userRole = await this.teamService.getTeamMemberRole(user.id, teamId);
     if (!userRole) {
       return false;
+    }
+
+    if (userRole === Role.OWNER) {
+      return true; // Owner has all permissions
     }
 
     return roles.includes(userRole);
