@@ -40,6 +40,7 @@ export class UserService {
     await this.teamService.create(
       {
         title: `${user.name}'s Team`,
+        description: `Personal team for ${user.name}`,
       },
       user.id,
     );

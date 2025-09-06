@@ -157,7 +157,7 @@ export class TeamService {
     });
   }
 
-  async getMembers(teamId: number): Promise<{ members: TeamMember[] }> {
+  async getMembers(teamId: number): Promise<TeamMember[]> {
     const members = await this.prisma.teamMember.findMany({
       where: { teamId },
       include: {
@@ -171,7 +171,7 @@ export class TeamService {
       },
     });
 
-    return { members };
+    return members;
   }
 
   async findTeamById(teamId: number): Promise<Team | null> {
