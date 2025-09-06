@@ -12,7 +12,6 @@ model User {
   email     String       @unique
   name      String
   password  String
-  teams     Team[]       @relation("OwnedTeams")
   members   TeamMember[]
 }
 
@@ -20,8 +19,6 @@ model Team {
   id          Int          @id @default(autoincrement())
   title       String
   description String?
-  owner       User         @relation("OwnedTeams", fields: [ownerId], references: [id])
-  ownerId     Int
   members     TeamMember[]
 }
 
@@ -36,6 +33,7 @@ model TeamMember {
 }
 
 enum Role {
+  OWNER
   ADMIN
   FACILITATOR
   PARTICIPANT

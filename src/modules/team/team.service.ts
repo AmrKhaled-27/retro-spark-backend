@@ -5,8 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Team, TeamMember } from '@prisma/client';
-import { Role } from '@prisma/client';
+import { Team, TeamMember, Role } from '@prisma/client';
 import { CreateTeamDto } from './dto/create-team.dto';
 import { UpdateTeamDto } from './dto/update-team.dto';
 import { AddTeamMemberDto } from './dto/add-team-member.dto';
@@ -20,7 +19,12 @@ export class TeamService {
     const team = await this.prisma.team.create({
       data: {
         ...createTeamDto,
-        ownerId,
+        members: {
+          create: {
+            userId: ownerId,
+            role: Role.OWNER,
+          },
+        },
       },
     });
 
@@ -30,20 +34,11 @@ export class TeamService {
   async findAllForUser(userId: number): Promise<Team[]> {
     const teams = await this.prisma.team.findMany({
       where: {
-        OR: [
-          // Teams where user is the owner
-          {
-            ownerId: userId,
+        members: {
+          some: {
+            userId,
           },
-          // Teams where user is a member
-          {
-            members: {
-              some: {
-                userId,
-              },
-            },
-          },
-        ],
+        },
       },
     });
     return teams;
@@ -76,8 +71,16 @@ export class TeamService {
   }
 
   async remove(teamId: number, userId: number): Promise<void> {
-    const team = await this.prisma.team.findUnique({ where: { id: teamId } });
-    if (team.ownerId !== userId) {
+    const member = await this.prisma.teamMember.findUnique({
+      where: {
+        userId_teamId: {
+          userId,
+          teamId,
+        },
+      },
+    });
+
+    if (!member || member.role !== Role.OWNER) {
       throw new UnauthorizedException('Only the owner can delete a team.');
     }
     await this.prisma.team.delete({ where: { id: teamId } });
@@ -85,6 +88,10 @@ export class TeamService {
 
   async addMember(teamId: number, addTeamMemberDto: AddTeamMemberDto): Promise<TeamMember> {
     const { userId, role } = addTeamMemberDto;
+
+    if (role === Role.OWNER) {
+      throw new UnauthorizedException('Cannot assign owner role to another user.');
+    }
 
     const existingMember = await this.prisma.teamMember.findUnique({
       where: { userId_teamId: { userId, teamId } },
@@ -110,17 +117,20 @@ export class TeamService {
   ): Promise<TeamMember> {
     const { role } = updateTeamMemberDto;
 
-    const team = await this.prisma.team.findUnique({ where: { id: teamId } });
-    if (team.ownerId === userId) {
-      throw new UnauthorizedException('Cannot change the role of the team owner.');
+    if (role === Role.OWNER) {
+      throw new UnauthorizedException('Cannot assign owner role to another user.');
     }
 
-    const member = await this.prisma.teamMember.findUnique({
+    const memberToUpdate = await this.prisma.teamMember.findUnique({
       where: { userId_teamId: { userId, teamId } },
     });
 
-    if (!member) {
+    if (!memberToUpdate) {
       throw new NotFoundException('Team member not found.');
+    }
+
+    if (memberToUpdate.role === Role.OWNER) {
+      throw new UnauthorizedException('Cannot change the role of the team owner.');
     }
 
     return this.prisma.teamMember.update({
@@ -130,11 +140,6 @@ export class TeamService {
   }
 
   async removeMember(teamId: number, userId: number): Promise<void> {
-    const team = await this.prisma.team.findUnique({ where: { id: teamId } });
-    if (team.ownerId === userId) {
-      throw new UnauthorizedException('Cannot remove the team owner.');
-    }
-
     const member = await this.prisma.teamMember.findUnique({
       where: { userId_teamId: { userId, teamId } },
     });
@@ -143,12 +148,16 @@ export class TeamService {
       throw new NotFoundException('Team member not found.');
     }
 
+    if (member.role === Role.OWNER) {
+      throw new UnauthorizedException('Cannot remove the team owner.');
+    }
+
     await this.prisma.teamMember.delete({
       where: { userId_teamId: { userId, teamId } },
     });
   }
 
-  async getMembers(teamId: number): Promise<{ members: TeamMember[] }> {
+  async getMembers(teamId: number): Promise<TeamMember[]> {
     const members = await this.prisma.teamMember.findMany({
       where: { teamId },
       include: {
@@ -162,7 +171,7 @@ export class TeamService {
       },
     });
 
-    return { members };
+    return members;
   }
 
   async findTeamById(teamId: number): Promise<Team | null> {
@@ -173,6 +182,6 @@ export class TeamService {
     const teamMember = await this.prisma.teamMember.findUnique({
       where: { userId_teamId: { userId, teamId } },
     });
-    return teamMember ? (teamMember.role as Role) : null;
+    return teamMember ? teamMember.role : null;
   }
 }
