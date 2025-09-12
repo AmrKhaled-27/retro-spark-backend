@@ -5,6 +5,7 @@ import { UserService } from '../user/user.service';
 import { SignUpDto } from './dto/signup.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class AuthService {
@@ -12,6 +13,7 @@ export class AuthService {
     private userService: UserService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private mailerService: MailerService,
   ) {}
 
   async signUp(signUpDto: SignUpDto) {
@@ -26,6 +28,17 @@ export class AuthService {
     const user = await this.userService.createUser({
       ...signUpDto,
       password: hashedPassword,
+    });
+
+    await this.mailerService.sendMail({
+      to: user.email,
+      subject: 'Welcome to RetroSpark',
+      template: 'welcome',
+      context: {
+        name: user.name,
+        year: new Date().getFullYear(),
+        dashboardLink: '/',
+      },
     });
 
     return this.getTokens(user.id, user.email);
