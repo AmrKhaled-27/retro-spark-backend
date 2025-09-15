@@ -109,8 +109,8 @@ export class TeamController {
   @ApiCookieAuth('access_token')
   @UseGuards(JwtAuthGuard)
   @Serialize(SerializedTeamDto)
-  @Get(':id')
-  findOne(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+  @Get(':teamId')
+  findOne(@Param('teamId') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.teamService.findTeamByIdForUser(+id, user.id);
   }
 
@@ -138,8 +138,8 @@ export class TeamController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Serialize(SerializedTeamDto)
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTeamDto: UpdateTeamDto) {
+  @Patch(':teamId')
+  update(@Param('teamId') id: string, @Body() updateTeamDto: UpdateTeamDto) {
     return this.teamService.update(+id, updateTeamDto);
   }
 
@@ -160,9 +160,9 @@ export class TeamController {
   @ApiCookieAuth('access_token')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.OWNER)
-  @Delete(':id')
+  @Delete(':teamId')
   @HttpCode(204)
-  remove(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+  remove(@Param('teamId') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.teamService.remove(+id, user.id);
   }
 
@@ -196,8 +196,8 @@ export class TeamController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Serialize(SerializedTeamMemberDto)
-  @Post(':id/members')
-  addMember(@Param('id') id: string, @Body() addTeamMemberDto: AddTeamMemberDto) {
+  @Post(':teamId/members')
+  addMember(@Param('teamId') id: string, @Body() addTeamMemberDto: AddTeamMemberDto) {
     return this.teamService.addMember(+id, addTeamMemberDto);
   }
 
@@ -231,9 +231,9 @@ export class TeamController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Serialize(SerializedTeamMemberDto)
-  @Patch(':id/members/:userId')
+  @Patch(':teamId/members/:userId')
   updateMemberRole(
-    @Param('id') id: string,
+    @Param('teamId') id: string,
     @Param('userId') userId: string,
     @Body() updateTeamMemberDto: UpdateTeamMemberDto,
   ) {
@@ -265,9 +265,9 @@ export class TeamController {
   @ApiCookieAuth('access_token')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  @Delete(':id/members/:userId')
+  @Delete(':teamId/members/:userId')
   @HttpCode(204)
-  removeMember(@Param('id') id: string, @Param('userId') userId: string) {
+  removeMember(@Param('teamId') id: string, @Param('userId') userId: string) {
     return this.teamService.removeMember(+id, +userId);
   }
 
@@ -295,8 +295,8 @@ export class TeamController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.FACILITATOR, Role.PARTICIPANT)
   @Serialize(SerializedTeamMemberDto)
-  @Get(':id/members')
-  getMembers(@Param('id') id: string) {
+  @Get(':teamId/members')
+  getMembers(@Param('teamId') id: string) {
     return this.teamService.getMembers(+id);
   }
 }
