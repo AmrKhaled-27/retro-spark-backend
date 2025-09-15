@@ -10,6 +10,7 @@ import { TeamModule } from '../team/team.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { join } from 'path';
+import { InvitationsModule } from '../invitations/invitations.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { join } from 'path';
     UserModule,
     AuthModule,
     TeamModule,
+    InvitationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -8,11 +8,12 @@ datasource db {
 }
 
 model User {
-  id        Int          @id @default(autoincrement())
-  email     String       @unique
-  name      String
-  password  String
-  members   TeamMember[]
+  id          Int          @id @default(autoincrement())
+  email       String       @unique
+  name        String
+  password    String
+  members     TeamMember[]
+  invitations Invitation[]
 }
 
 model Team {
@@ -20,6 +21,7 @@ model Team {
   title       String
   description String?
   members     TeamMember[]
+  invitations Invitation[]
 }
 
 model TeamMember {
@@ -32,9 +34,29 @@ model TeamMember {
   @@id([userId, teamId])
 }
 
+model Invitation {
+  id           String           @id @default(cuid())
+  team         Team             @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId       Int
+  invitedEmail String
+  invitedBy    User             @relation(fields: [invitedById], references: [id], onDelete: Cascade)
+  invitedById  Int
+  status       InvitationStatus @default(PENDING)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@unique([teamId, invitedEmail])
+}
+
 enum Role {
   OWNER
   ADMIN
   FACILITATOR
   PARTICIPANT
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
 }
