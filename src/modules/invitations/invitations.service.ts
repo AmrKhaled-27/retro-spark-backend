@@ -3,7 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { TeamService } from '../team/team.service';
 import { MailerService } from '@nestjs-modules/mailer';
 import { CreateInvitationDto } from './dto/create-invitation.dto';
-import { Role } from '@prisma/client';
+import { InvitationStatus, Role } from '@prisma/client';
 
 @Injectable()
 export class InvitationsService {
@@ -106,12 +106,24 @@ export class InvitationsService {
     }
 
     return await this.prisma.invitation.findMany({
-      where: { teamId },
+      where: {
+        teamId,
+        status: {
+          not: InvitationStatus.ACCEPTED,
+        },
+      },
       select: {
         id: true,
         status: true,
         invitedEmail: true,
         createdAt: true,
+        invitedBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',
