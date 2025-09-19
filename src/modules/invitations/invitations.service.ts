@@ -78,24 +78,24 @@ export class InvitationsService {
   async accept(hash: string, userId: number) {
     const invitation = await this.prisma.invitation.findUnique({ where: { id: hash } });
 
-    if (!invitation || invitation.status !== 'PENDING') {
-      throw new NotFoundException('Invitation not found or already accepted/expired');
+    if (!invitation || invitation.status !== InvitationStatus.PENDING) {
+      throw new NotFoundException('Invitation not found or already accepted.');
     }
 
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
-    if (user.email !== invitation.invitedEmail) {
-      throw new UnauthorizedException('This invitation is not for you.');
+    if (user.email.toLowerCase() !== invitation.invitedEmail.toLowerCase()) {
+      throw new UnauthorizedException("The email in the invitation doesn't match yours.");
     }
 
     await this.teamService.addMember(invitation.teamId, { userId, role: Role.PARTICIPANT });
 
     await this.prisma.invitation.update({
       where: { id: hash },
-      data: { status: 'ACCEPTED' },
+      data: { status: InvitationStatus.ACCEPTED },
     });
 
-    return { message: 'Invitation accepted successfully' };
+    return { message: 'Invitation accepted successfully.' };
   }
 
   async findAllByTeam(teamId: number, userId: number) {
@@ -132,7 +132,7 @@ export class InvitationsService {
   }
 
   private async sendInvitationEmail(email: string, teamName: string, invitationId: string) {
-    const invitationLink = `${process.env.FRONTEND_URL}/accept-invitation?invitationId=${invitationId}`;
+    const invitationLink = `${process.env.FRONTEND_URL}/app/invitation?invitationId=${invitationId}`;
     await this.mailerService.sendMail({
       to: email,
       subject: `You have been invited to join the team: ${teamName}`,
