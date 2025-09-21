@@ -72,10 +72,23 @@ model Board {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  team    Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  columns BoardColumn[]
 }
 
 enum BoardType {
   PUBLIC
   PRIVATE
+}
+
+model BoardColumn {
+  id        Int     @id @default(autoincrement())
+  title     String
+  board_id  Int
+  is_active Boolean @default(true)
+  index     Int
+
+  Board Board @relation(fields: [board_id], references: [id], onDelete: Cascade)
+
+  @@unique([board_id, index])
 }
