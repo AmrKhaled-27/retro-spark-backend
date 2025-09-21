@@ -11,6 +11,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { join } from 'path';
 import { InvitationsModule } from '../invitations/invitations.module';
+import { BoardsModule } from '../boards/boards.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { InvitationsModule } from '../invitations/invitations.module';
     AuthModule,
     TeamModule,
     InvitationsModule,
+    BoardsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
