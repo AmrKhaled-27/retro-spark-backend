@@ -22,6 +22,7 @@ model Team {
   description String?
   members     TeamMember[]
   invitations Invitation[]
+  boards      Board[]
 }
 
 model TeamMember {
@@ -59,4 +60,22 @@ enum InvitationStatus {
   PENDING
   ACCEPTED
   EXPIRED
+}
+
+model Board {
+  id           Int       @id @default(autoincrement())
+  title        String
+  description  String?
+  type         BoardType
+  teamId       Int
+  is_anonymous Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
+enum BoardType {
+  PUBLIC
+  PRIVATE
 }
