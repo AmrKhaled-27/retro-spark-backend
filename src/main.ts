@@ -30,7 +30,6 @@ async function bootstrap() {
     .setTitle('Retro Spark API')
     .setDescription('The Retro Spark API description')
     .setVersion('1.0')
-    .addTag('retro-spark')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

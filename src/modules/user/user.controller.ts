@@ -16,7 +16,7 @@ import {
   ApiCookieAuth,
 } from '@nestjs/swagger';
 
-@ApiTags('users')
+@ApiTags('Users')
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
