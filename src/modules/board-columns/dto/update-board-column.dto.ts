@@ -2,6 +2,14 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsBoolean, IsInt, IsOptional, IsString } from 'class-validator';
 
 export class UpdateBoardColumnDto {
+  @ApiPropertyOptional({
+    description: 'The id of the column to update (Note: only used in websocket context)',
+    example: 10,
+  })
+  @IsInt()
+  @IsOptional()
+  columnId?: number;
+
   @ApiPropertyOptional({ description: 'The title of the column', example: 'In Progress' })
   @IsString()
   @IsOptional()
