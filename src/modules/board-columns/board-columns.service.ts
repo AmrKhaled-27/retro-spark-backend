@@ -123,4 +123,14 @@ export class BoardColumnsService {
       data: defaultColumns,
     });
   }
+
+  async getColumns(boardId: number) {
+    const columns = this.prisma.boardColumn.findMany({
+      where: {
+        board_id: boardId,
+      },
+    });
+
+    return columns;
+  }
 }
